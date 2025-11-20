@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo de Generación de Reportes POS</title>
+    <!-- Incluye Tailwind CSS para un diseño moderno y responsive -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Configuraciones personalizadas y fuente */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9; /* Fondo claro */
+        }
+        .report-card {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .scrollable-preview {
+            max-height: 70vh; /* Altura máxima para la previsualización */
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 border-b-2 border-indigo-500 pb-2">
+            📊 Módulo de Generación de Reportes
+        </h1>
+
+        <!-- Contenedor Principal de la Aplicación -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            <!-- Columna de Control (Filtros y Acciones) -->
+            <div class="lg:col-span-1 bg-white p-6 rounded-xl report-card h-fit">
+                <h2 class="text-xl font-semibold text-indigo-700 mb-4">Configuración del Reporte</h2>
+
+                <!-- 1. Seleccionar Tipo de Reporte (Requisito: Menú Desplegable) -->
+                <div class="mb-4">
+                    <label for="reportType" class="block text-sm font-medium text-gray-700 mb-1">Tipo de Reporte:</label>
+                    <select id="reportType" onchange="updateFilters()" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition duration-150 ease-in-out">
+                        <option value="ventas" selected>Reporte de Ventas (Principal)</option>
+                        <option value="inventario">Reporte de Inventario (Stock)</option>
+                        <option value="productos_vendidos">Productos Más Vendidos</option>
+                        <option value="utilidad">Reporte de Utilidad Bruta</option>
+                        <!-- Aquí se pueden añadir nuevos tipos de reporte fácilmente -->
+                    </select>
+                </div>
+
+                <!-- 2. Filtros Dinámicos (Requisito: Rango de Tiempo, Usuario) -->
+                <div id="dateFilters" class="mb-4">
+                    <h3 class="text-lg font-medium text-gray-800 mb-2">Filtro de Tiempo</h3>
+                    <div class="space-y-2">
+                        <div>
+                            <label for="startDate" class="block text-sm font-medium text-gray-700">Fecha de Inicio:</label>
+                            <input type="date" id="startDate" value="2025-01-01" class="w-full p-2 border border-gray-300 rounded-lg">
+                        </div>
+                        <div>
+                            <label for="endDate" class="block text-sm font-medium text-gray-700">Fecha de Fin:</label>
+                            <input type="date" id="endDate" value="2025-11-09" class="w-full p-2 border border-gray-300 rounded-lg">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="otherFilters" class="mb-6 space-y-3">
+                    <!-- Filtro por Usuario/Empleado (Requisito) -->
+                    <div>
+                        <label for="userId" class="block text-sm font-medium text-gray-700 mb-1">Filtrar por ID de Usuario/Cajero:</label>
+                        <input type="text" id="userId" placeholder="Ej: 101 o Dejar vacío" class="w-full p-2 border border-gray-300 rounded-lg">
+                    </div>
+                    <!-- Filtro por Categoría (Requisito) -->
+                    <div id="categoryFilter">
+                        <label for="category" class="block text-sm font-medium text-gray-700 mb-1">Categoría de Producto:</label>
+                        <select id="category" class="w-full p-2 border border-gray-300 rounded-lg">
+                            <option value="">Todas las Categorías</option>
+                            <option value="alimentos">Alimentos</option>
+                            <option value="bebidas">Bebidas</option>
+                            <option value="electronica">Electrónica</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Botón Generar/Previsualizar (Requisito: Previsualizar) -->
+                <button onclick="generateReport()" class="w-full bg-indigo-600 text-white font-semibold py-2 rounded-lg hover:bg-indigo-700 transition duration-200 shadow-md">
+                    Generar & Previsualizar Reporte
+                </button>
+
+                <!-- Historial de Reportes (Requisito) -->
+                <div class="mt-6 border-t pt-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Historial de Generación</h3>
+                    <ul id="historyList" class="text-sm space-y-1 max-h-32 overflow-y-auto">
+                        <li class="text-gray-500">No hay historial aún.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Columna de Previsualización y Métricas -->
+            <div class="lg:col-span-3">
+
+                <!-- Métricas (Requisito: Mostrar Métricas/Gráficas) -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-white p-4 rounded-xl report-card border-l-4 border-green-500">
+                        <p class="text-sm text-gray-500">Ventas Totales Netas</p>
+                        <p id="metricTotal" class="text-2xl font-bold text-gray-900">$0.00</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl report-card border-l-4 border-blue-500">
+                        <p class="text-sm text-gray-500">Cantidad de Transacciones</p>
+                        <p id="metricCount" class="text-2xl font-bold text-gray-900">0</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl report-card border-l-4 border-yellow-500">
+                        <p class="text-sm text-gray-500">Producto Más Vendido</p>
+                        <p id="metricTopProduct" class="text-xl font-bold text-gray-900 truncate">N/A</p>
+                    </div>
+                </div>
+
+                <!-- Previsualización del Reporte (Requisito) -->
+                <div class="bg-white p-6 rounded-xl report-card">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 id="reportTitle" class="text-2xl font-bold text-gray-800">Reporte de Ventas (Previsualización)</h2>
+                        
+                        <!-- Botones de Acción (Requisito: Exportar) -->
+                        <div class="space-x-2">
+                            <button onclick="exportReport('pdf')" class="bg-red-500 text-white font-medium py-2 px-4 rounded-lg hover:bg-red-600 transition duration-200 flex items-center shadow-md">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5 4V2a2 2 0 012-2h6a2 2 0 012 2v2h2a2 2 0 012 2v10a2 2 0 01-2 2H3a2 2 0 01-2-2V6a2 2 0 012-2h2zm4-2a1 1 0 00-1 1v1h2V3a1 1 0 00-1-1z" clip-rule="evenodd" /><path d="M12 9a1 1 0 100 2h-4a1 1 0 100 2h4a1 1 0 100-2h-4V9h4z"/></svg>
+                                Exportar PDF
+                            </button>
+                            <button onclick="exportReport('excel')" class="bg-green-500 text-white font-medium py-2 px-4 rounded-lg hover:bg-green-600 transition duration-200 flex items-center shadow-md">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8 6a6 6 0 100-12 6 6 0 000 12z" clip-rule="evenodd" /></svg>
+                                Exportar Excel
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="previewContainer" class="scrollable-preview">
+                        <!-- Aquí se inyectará el contenido del reporte generado por Python -->
+                        <p class="text-center text-gray-500 mt-10" id="initialMessage">
+                            Selecciona los filtros y haz clic en "Generar Reporte" para ver la previsualización.
+                        </p>
+
+                        <!-- Estructura de Tabla Placeholder -->
+                        <table id="reportTable" class="min-w-full divide-y divide-gray-200 hidden">
+                            <thead class="bg-gray-50 sticky top-0">
+                                <tr>
+                                    <!-- Encabezados de Columna (Inyectados por JS) -->
+                                </tr>
+                            </thead>
+                            <tbody id="reportBody" class="bg-white divide-y divide-gray-200">
+                                <!-- Filas de Datos (Inyectadas por JS) -->
+                            </tbody>
+                            <tfoot class="bg-gray-100">
+                                <tr>
+                                    <td colspan="5" class="px-6 py-3 text-right text-sm font-semibold text-gray-700">Total Global:</td>
+                                    <td id="tableTotal" class="px-6 py-3 text-sm font-bold text-gray-900">$0.00</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script para la Lógica del Front-end -->
+    <script>
+        // *** RUTA DE LA API: Agregada aquí para fácil configuración ***
+        const REPORT_API_URL = '/reportes/generar/';
+
+        // Simulación de datos recibidos de Python/API (Reporte de Ventas)
+        const mockData = {
+            metadata: {
+                title: "Reporte de Ventas Detallado",
+                startDate: "2025-01-01",
+                endDate: "2025-11-09",
+                filterUser: "Todos",
+            },
+            summary: {
+                total_ventas: 15450.75,
+                transacciones: 125,
+                producto_estrella: "Café Especial (ID: 45)",
+            },
+            columns: ["ID Venta", "Fecha", "Producto", "Cantidad", "Cajero ID", "Monto Total"],
+            data: [
+                [1001, "2025-11-08 10:30", "Café Especial", 2, "101", 60.00],
+                [1002, "2025-11-08 11:15", "Tarta de Queso", 1, "102", 35.50],
+                [1003, "2025-11-08 14:00", "Bebida Energética", 5, "101", 100.00],
+                [1004, "2025-11-09 09:00", "Pan Integral", 3, "103", 45.75],
+                [1005, "2025-11-09 12:45", "Chocolate Caliente", 4, "102", 80.00],
+            ],
+            // Datos adicionales para ejemplo de Inventario
+            inventoryData: [
+                ["A101", "Café Grano", 250, "Bolsas", "2026-06-01"],
+                ["B202", "Leche Entera", 120, "Litros", "2025-11-30"],
+            ]
+        };
+
+        /**
+         * Función simulada para llamar al servicio de Python (report_service.py)
+         * En la implementación real con Visual, esta función enviaría
+         * los filtros a Python y recibiría el objeto 'data' de vuelta.
+         */
+        async function fetchReportData(filters) {
+            console.log(`Llamando a la API: ${REPORT_API_URL} con filtros:`, filters);
+
+            // EJEMPLO DE CÓDIGO PARA INTEGRACIÓN REAL (USANDO REPORT_API_URL):
+            /*
+            try {
+                const response = await fetch(REPORT_API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(filters)
+                });
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error("Error al obtener el reporte desde el servidor:", error);
+                showMessage('Error al conectar con el servidor de reportes.', 'bg-red-700');
+                throw error; // Re-lanza el error para detener generateReport()
+            }
+            */
+
+            // SIMULACIÓN (Devolvemos los datos simulados y esperamos 0.5s para simular latencia)
+            await new Promise(resolve => setTimeout(resolve, 500)); 
+
+            const type = filters.reportType;
+            let currentData = { ...mockData };
+            
+            if (type === 'inventario') {
+                currentData.metadata.title = "Reporte de Inventario Actual";
+                currentData.columns = ["ID Producto", "Nombre", "Stock Actual", "Unidad", "Vencimiento"];
+                currentData.data = mockData.inventoryData;
+                currentData.summary.total_ventas = 0; // Se ajustan las métricas para este reporte
+                currentData.summary.transacciones = mockData.inventoryData.length;
+                currentData.summary.producto_estrella = "N/A";
+            } else {
+                currentData.metadata.title = "Reporte de Ventas Detallado";
+                currentData.columns = ["ID Venta", "Fecha", "Producto", "Cantidad", "Cajero ID", "Monto Total"];
+                currentData.data = mockData.data;
+            }
+            
+            return currentData;
+        }
+
+
+        /**
+         * 1. Genera y Previsualiza el Reporte (Requisito 5 y 6)
+         */
+        async function generateReport() {
+            const reportType = document.getElementById('reportType').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const userId = document.getElementById('userId').value;
+            const category = document.getElementById('category').value;
+
+            // Mostrar indicador de carga
+            document.getElementById('initialMessage').textContent = 'Generando reporte... Por favor, espera.';
+            document.getElementById('reportTable').classList.add('hidden');
+
+            const filters = { reportType, startDate, endDate, userId, category };
+            
+            try {
+                // Obtención de datos desde Python/API
+                const report = await fetchReportData(filters);
+
+                // Actualiza Título y Métricas
+                document.getElementById('reportTitle').textContent = report.metadata.title;
+                document.getElementById('metricTotal').textContent = `$${report.summary.total_ventas.toFixed(2)}`;
+                document.getElementById('metricCount').textContent = report.summary.transacciones;
+                document.getElementById('metricTopProduct').textContent = report.summary.producto_estrella;
+
+                // Dibuja la Tabla
+                renderTable(report.columns, report.data);
+
+                // Actualiza Historial (Requisito 4)
+                updateHistory(report.metadata.title);
+
+                // Oculta mensaje inicial y muestra la tabla
+                document.getElementById('initialMessage').classList.add('hidden');
+                document.getElementById('reportTable').classList.remove('hidden');
+                
+                showMessage('Reporte generado y previsualizado con éxito.', 'bg-indigo-500');
+            } catch (error) {
+                 document.getElementById('initialMessage').textContent = 'Fallo en la generación del reporte. Revisa la consola para más detalles.';
+                 // Ocultar la tabla si falla
+                 document.getElementById('reportTable').classList.add('hidden');
+            }
+        }
+
+        /**
+         * Dibuja la tabla del reporte en el contenedor de previsualización.
+         */
+        function renderTable(columns, data) {
+            const thead = document.querySelector('#reportTable thead tr');
+            const tbody = document.getElementById('reportBody');
+            const tableTotal = document.getElementById('tableTotal');
+            
+            thead.innerHTML = '';
+            tbody.innerHTML = '';
+            let totalAmount = 0;
+
+            // Crear encabezados de columna
+            columns.forEach(col => {
+                const th = document.createElement('th');
+                th.className = 'px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider';
+                th.textContent = col;
+                thead.appendChild(th);
+            });
+            
+            // Crear filas de datos
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-gray-50 transition duration-100';
+                
+                row.forEach((cell, index) => {
+                    const td = document.createElement('td');
+                    td.className = 'px-6 py-4 whitespace-nowrap text-sm text-gray-900';
+                    
+                    if (columns[index] === "Monto Total") {
+                        // Formato de moneda para la columna de Monto Total
+                        const monto = parseFloat(cell);
+                        td.textContent = `$${monto.toFixed(2)}`;
+                        td.className += ' font-semibold text-right';
+                        totalAmount += monto;
+                    } else if (columns[index] === "Cantidad" || columns[index] === "Stock Actual") {
+                        // Formato de números enteros
+                        td.textContent = parseInt(cell).toLocaleString('es-ES');
+                        td.className += ' text-right';
+                    } else {
+                        td.textContent = cell;
+                    }
+                    tr.appendChild(td);
+                });
+                tbody.appendChild(tr);
+            });
+            
+            // Actualiza el total de la tabla (solo para reportes con monto total)
+            if (columns.includes("Monto Total")) {
+                 tableTotal.textContent = `$${totalAmount.toFixed(2)}`;
+            } else {
+                 tableTotal.textContent = "N/A";
+            }
+        }
+
+        /**
+         * 2. Simula la exportación a PDF o Excel (Requisito 2)
+         */
+        function exportReport(format) {
+            // En una aplicación real, se usaría REPORT_API_URL o un endpoint de exportación dedicado.
+            
+            const reportName = document.getElementById('reportTitle').textContent;
+            
+            showMessage(`Llamando a Python para generar el archivo: ${reportName}.${format.toUpperCase()}`, 'bg-indigo-600');
+            
+            // Simulación de descarga
+            setTimeout(() => {
+                showMessage(`¡Exportación a ${format.toUpperCase()} completada! Archivo '${reportName}.${format.toUpperCase()}' listo.`,
+                            'bg-green-500');
+            }, 1500);
+            
+            // Aquí iría el fetch real a la API de Python para iniciar la exportación.
+            // Ejemplo: fetch('/api/export_report', { method: 'POST', body: JSON.stringify({ format }) });
+        }
+
+        /**
+         * 3. Actualiza el historial de reportes generados.
+         */
+        function updateHistory(title) {
+            const historyList = document.getElementById('historyList');
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            
+            const listItem = document.createElement('li');
+            listItem.className = 'text-gray-700 p-1 border-b last:border-b-0 hover:bg-gray-100 rounded-md';
+            listItem.innerHTML = `<span class="font-mono text-xs text-indigo-500">[${timeString}]</span> ${title}`;
+
+            // Eliminar el mensaje inicial si existe
+            if (historyList.children.length === 1 && historyList.children[0].textContent.includes('No hay historial')) {
+                historyList.innerHTML = '';
+            }
+            
+            // Añadir al inicio de la lista
+            historyList.prepend(listItem);
+
+            // Mantener solo los últimos 10 elementos
+            while (historyList.children.length > 10) {
+                historyList.removeChild(historyList.lastChild);
+            }
+        }
+        
+        /**
+         * 4. Muestra un mensaje temporal de notificación (similar a un Toast/Snackbar).
+         */
+        function showMessage(message, bgColor) {
+            let msgBox = document.getElementById('messageBox');
+            
+            // Crear si no existe
+            if (!msgBox) {
+                msgBox = document.createElement('div');
+                msgBox.id = 'messageBox';
+                msgBox.className = 'fixed bottom-4 right-4 p-3 rounded-lg text-white font-medium transition-opacity duration-300 opacity-0 z-50 shadow-lg';
+                document.body.appendChild(msgBox);
+            }
+
+            msgBox.className = `fixed bottom-4 right-4 p-3 rounded-lg text-white font-medium transition-opacity duration-300 z-50 shadow-lg ${bgColor}`;
+            msgBox.textContent = message;
+            
+            // Mostrar
+            setTimeout(() => {
+                msgBox.classList.remove('opacity-0');
+            }, 10);
+
+            // Ocultar después de 4 segundos
+            setTimeout(() => {
+                msgBox.classList.add('opacity-0');
+            }, 4000);
+        }
+
+        /**
+         * 5. Función de simulación para actualizar filtros (actualmente no hace nada)
+         */
+        function updateFilters() {
+            // Lógica futura para mostrar/ocultar filtros basados en el tipo de reporte.
+            const reportType = document.getElementById('reportType').value;
+            const otherFilters = document.getElementById('otherFilters');
+            
+            if (reportType === 'inventario') {
+                otherFilters.classList.add('opacity-50', 'pointer-events-none');
+            } else {
+                otherFilters.classList.remove('opacity-50', 'pointer-events-none');
+            }
+            console.log("Filtros actualizados por tipo de reporte.");
+        }
+
+        // Inicialización: Asegura que la fecha de fin sea hoy al cargar
+        window.onload = function() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('endDate').value = today;
+            // Configurar una fecha de inicio razonable (ej. 30 días antes)
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+            document.getElementById('startDate').value = thirtyDaysAgo.toISOString().split('T')[0];
+        }
+
+    </script>
+</body>
+</html>

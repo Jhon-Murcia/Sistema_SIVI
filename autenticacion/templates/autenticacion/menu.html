@@ -1,0 +1,131 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Menú Principal - SIVI</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #74b9ff, #0984e3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin: 40px 0 20px 0;
+            text-shadow: 1px 1px 5px rgba(0,0,0,0.3);
+        }
+
+        .menu-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 25px;
+            max-width: 1000px;
+            padding: 0 20px;
+            margin-bottom: 40px;
+        }
+
+        .menu-option {
+            background-color: white;
+            color: #007bff;
+            border-radius: 18px;
+            padding: 25px 35px;
+            min-width: 170px;
+            text-align: center;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .menu-option span {
+            font-size: 2em;
+        }
+
+        .menu-option:hover {
+            transform: translateY(-7px);
+            background-color: #007bff;
+            color: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+        }
+
+        .menu-option.disabled {
+            background-color: #dfe6e9;
+            color: #636e72;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .menu-option.logout {
+            background-color: #ff7675;
+            color: white;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+
+        .menu-option.logout:hover {
+            background-color: #d63031;
+            transform: translateY(-5px);
+        }
+
+        /* 💎 Botón especial para Inventario */
+        .menu-option.inventory {
+            background-color: #74b9ff;
+            color: white;
+        }
+
+        .menu-option.inventory:hover {
+            background-color: #0984e3;
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body>
+    <h1>Menú Principal</h1>
+
+    <div class="menu-grid">
+        <!-- Inventario -->
+        <a href="{% url 'inventario' %}" class="menu-option inventory">
+            <span>🛒</span> Inventario
+        </a>
+
+        <!-- Ventas -->
+        <a href="{% url 'ventas' %}" class="menu-option">
+    <span>📦</span> Ventas
+</a>
+
+
+        <!-- Clientes -->
+        <a class="menu-option disabled">
+            <span>👥</span> Clientes
+        </a>
+        
+        <!-- Configuración -->
+        <a class="menu-option disabled">
+            <span>📊</span> Reportes
+        </a>
+
+        <!-- Configuración -->
+        <a class="menu-option disabled">
+            <span>⚙️</span> Configuración
+        </a>
+
+        <!-- Cerrar sesión -->
+        <a href="{% url 'logout' %}" class="menu-option logout">
+            <span>🚪</span> Cerrar sesión
+        </a>
+    </div>
+</body>
+</html>

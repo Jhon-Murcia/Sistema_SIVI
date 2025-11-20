@@ -1,0 +1,55 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registrar Venta - SIVI</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body{
+      font-family:'Segoe UI',sans-serif;
+      margin:0;padding:0;min-height:100vh;
+      background:linear-gradient(135deg,#74b9ff,#0984e3);color:white;
+    }
+    .container{
+      background:white;color:#2d3436;border-radius:18px;
+      padding:30px;margin-top:50px;box-shadow:0 6px 15px rgba(0,0,0,0.2);
+      max-width:600px;
+    }
+    .btn-primary{background-color:#0984e3;border:none;}
+    .btn-primary:hover{background-color:#74b9ff;}
+    .btn-volver{background-color:#d63031;color:white;border-radius:10px;
+    padding:8px 16px;text-decoration:none;}
+    .btn-volver:hover{background-color:#ff7675;}
+    h2{color:#0984e3;text-align:center;margin-bottom:20px;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Registrar Venta</h2>
+
+    <form method="POST">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label">Producto</label>
+        <select class="form-select" name="producto" required>
+          {% for p in productos %}
+          <option value="{{ p.id }}">{{ p.nombre }} - Stock {{ p.cantidad }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Cantidad</label>
+        <input type="number" class="form-control" name="cantidad" min="1" required>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Guardar venta</button>
+      <a href="{% url 'ventas' %}" class="btn btn-secondary">Cancelar</a>
+    </form>
+
+    <br>
+    <a href="{% url 'menu_principal' %}" class="btn-volver">⬅ Volver al menú</a>
+  </div>
+</body>
+</html>

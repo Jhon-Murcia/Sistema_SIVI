@@ -1,0 +1,191 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Registro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+        }
+        .left-section, .right-section {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .left-section { background-color: #ffffff; }
+        .right-section {
+            background-color: rgb(6, 130, 179);
+            color: #ffffff;
+            flex-direction: column;
+            text-align: center;
+            padding: 20px;
+        }
+        .form-container {
+            background-color: #f8f9fa;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 380px;
+        }
+        h2 {
+            margin-bottom: 25px;
+            font-size: 24px;
+            color: #28a745;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            text-align: left;
+            font-weight: 600;
+        }
+        input[type="text"], input[type="password"], input[type="email"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 15px;
+            background-color: #e9f0fe;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .btn-success { background-color: #28a745; }
+        .btn-success:hover { background-color: #218838; }
+        .btn-secondary { background-color: #6c757d; }
+        .btn-secondary:hover { background-color: #5a6268; }
+        .logo {
+            width: 400px;
+            animation: float 3s ease-in-out infinite, glow 2s infinite alternate;
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+        @keyframes glow {
+            0% { filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7)); }
+            100% { filter: drop-shadow(0 0 20px rgba(255, 255, 255, 1)); }
+        }
+        .slogan {
+            margin-top: 30px;
+            font-family: 'Pacifico', cursive;
+            font-size: 30px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+        }
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-align: left;
+        }
+        .message-box {
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+        .message-success {
+            color: #0f5132;
+            background-color: #d1e7dd;
+            border: 1px solid #badbcc;
+        }
+        .message-error {
+            color: #842029;
+            background-color: #f8d7da;
+            border: 1px solid #f5c2c7;
+        }
+    </style>
+</head>
+<body>
+
+<div class="left-section">
+    <div class="form-container">
+        <h2>Crear cuenta</h2>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message-box {% if message.tags == 'error' %}message-error{% else %}message-success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% if form.non_field_errors %}
+            <div class="error-message">
+                <ul>
+                    {% for error in form.non_field_errors %}
+                        <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <form method="POST" action="{% url 'registro' %}">
+            {% csrf_token %}
+
+            <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+            {{ form.username }}
+            {% if form.username.errors %}
+                <div class="error-message">{{ form.username.errors.as_text|striptags }}</div>
+            {% endif %}
+
+            <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+                <div class="error-message">{{ form.email.errors.as_text|striptags }}</div>
+            {% endif %}
+
+            <label for="{{ form.password.id_for_label }}">{{ form.password.label }}</label>
+            {{ form.password }}
+            {% if form.password.errors %}
+                <div class="error-message">{{ form.password.errors.as_text|striptags }}</div>
+            {% endif %}
+
+            <label for="{{ form.confirmar_password.id_for_label }}">{{ form.confirmar_password.label }}</label>
+            {{ form.confirmar_password }}
+            {% if form.confirmar_password.errors %}
+                <div class="error-message">{{ form.confirmar_password.errors.as_text|striptags }}</div>
+            {% endif %}
+
+            <label for="{{ form.grupo.id_for_label }}">{{ form.grupo.label }}</label>
+            {{ form.grupo }}
+            {% if form.grupo.errors %}
+                <div class="error-message">{{ form.grupo.errors.as_text|striptags }}</div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-success">Registrarse</button>
+        </form>
+
+        <form action="{% url 'login' %}">
+            <button type="submit" class="btn btn-secondary">Volver a Login</button>
+        </form>
+    </div>
+</div>
+
+<div class="right-section">
+    <img src="{% static 'imagenes/logo_Poslive.png' %}" alt="Logo" class="logo">
+    <p class="slogan">Gestión moderna, resultados reales</p>
+</div>
+
+</body>
+</html>

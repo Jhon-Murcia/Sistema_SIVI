@@ -1,0 +1,230 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inicio de Sesión</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            flex-direction: row;
+        }
+
+        .left-section, .right-section {
+            width: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .left-section {
+            background-color: #ffffff;
+        }
+
+        .right-section {
+            background-color: #007bff;
+            color: #ffffff;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .form-container {
+            background-color: #f8f9fa;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 350px;
+        }
+
+        h2 {
+            margin-bottom: 30px;
+            font-size: 24px;
+            color: #007bff;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        input[type="text"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 15px;
+            background-color: #e9f0fe;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+        }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .logo {
+            width: 400px;
+            animation: float 3s ease-in-out infinite, glow 2s infinite alternate;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes glow {
+            0% { filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7)); }
+            100% { filter: drop-shadow(0 0 20px rgba(255, 255, 255, 1)); }
+        }
+
+        .slogan {
+            margin-top: 30px;
+            font-family: 'Pacifico', cursive;
+            font-size: 30px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .alert {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .show-password {
+            text-align: left;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #333;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            .left-section, .right-section {
+                width: 100%;
+                height: auto;
+                padding: 20px;
+            }
+
+            .logo {
+                width: 250px;
+            }
+
+            .slogan {
+                font-size: 24px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="left-section">
+        <div class="form-container">
+            <h2>Inicio de sesión</h2>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-danger">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Formulario de login -->
+            <form method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+                <label for="username">Nombre de usuario:</label>
+                <input type="text" id="username" name="username" required autocomplete="username" pattern="\S+" title="No se permiten espacios en blanco" aria-label="Nombre de usuario">
+
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" required autocomplete="current-password" aria-label="Contraseña">
+
+                <div class="show-password">
+                    <input type="checkbox" id="showPassword" onclick="togglePassword()"> <label for="showPassword">Mostrar contraseña</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Iniciar</button>
+            </form>
+            <br>
+
+            <!-- Botón para iniciar sesión como invitado -->
+            <form method="POST" action="{% url 'invitado' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-secondary">Ingresar como Invitado</button>
+            </form>
+            <br>
+
+            <!-- Botón para registro -->
+            <form method="GET" action="{% url 'registro' %}">
+                <button type="submit" class="btn btn-success">Registrar</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="right-section">
+        <img src="{% static 'imagenes/logo_Sivi.png' %}" alt="Logo" class="logo">
+        <p class="slogan">Gestión moderna, resultados reales</p>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById("password");
+            passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+        }
+    </script>
+
+</body>
+</html>
