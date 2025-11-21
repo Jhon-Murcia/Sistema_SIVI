@@ -1,10 +1,11 @@
+import json
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
-from .forms import RegistroForm, LoginForm
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
+<<<<<<< HEAD
 from .models import Producto, Venta
 from django.db.models import F
 from django.utils import timezone
@@ -17,30 +18,41 @@ from django.utils import timezone
 # Usaré la importación que asume que es accesible desde el entorno global de Django
 import report_service as report_service 
 import config_logic as config_logic
+=======
+from django.http import JsonResponse
 
-# Vista 1: Renderiza la interfaz HTML (asume que reportes_interfaz.html está en 'templates/autenticacion')
-# Protegemos esta vista para que solo usuarios logueados accedan al módulo de reportes.
-@login_required 
+from django.db import transaction
+from django.utils import timezone
+>>>>>>> 368006431b845973f221dfdfc0fbf8c994d0067d
+
+# Modelos
+from .models import Producto, Venta, RegistroActividad
+
+# Formularios
+from .forms import RegistroForm, LoginForm
+
+# Módulo de reportes
+import report_service
+
+
+# -------------------------------------------------------------------
+# MODULO DE REPORTES
+# -------------------------------------------------------------------
+
+@login_required
 def report_interface_view(request):
-    """Renderiza la página que contiene la lógica de reportes."""
-    # Asegúrate de que tu archivo HTML se llame 'reportes_interfaz.html' 
-    # y esté en la carpeta 'templates/autenticacion' (o donde lo sirvas).
-    return render(request, 'autenticacion/reportes_interfaz.html',{})
+    """Interfaz HTML del módulo de reportes"""
+    return render(request, 'autenticacion/reportes_interfaz.html', {})
 
 
-# Vista 2: El ENDPOINT de la API que el JavaScript llamará
-@csrf_exempt # **IMPORTANTE:** En entornos de producción, configura el token CSRF en el JS.
-             # Para pruebas, lo dejamos aquí para evitar el error 403.
-@login_required 
+@csrf_exempt
+@login_required
 def generate_report_api_view(request):
-    """
-    Recibe los filtros del frontend por POST y llama a la lógica de reportes.
-    Ruta: /reportes/api/generar/
-    """
+    """API que recibe filtros y genera reportes"""
     if request.method == 'POST':
         try:
             data = json.loads(request.body.decode('utf-8'))
-            
+
             filters = {
                 'reportType': data.get('reportType'),
                 'startDate': data.get('startDate'),
@@ -48,22 +60,26 @@ def generate_report_api_view(request):
                 'userId': data.get('userId', ''),
                 'category': data.get('category', ''),
             }
-            
+
             report_data = report_service.generate_report_data(filters)
-            
             return JsonResponse(report_data)
-        
+
         except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+            return JsonResponse({'error': 'JSON inválido'}, status=400)
+
         except Exception as e:
-    
-            print(f"ERROR al generar reporte en Django: {e}")
-            return JsonResponse({'error': f'Error interno del servidor: {str(e)}'}, status=500)
-    
-    return JsonResponse({'error': 'Método no permitido. Use POST.'}, status=405)
+            print(f"ERROR ▶ {e}")
+            return JsonResponse({'error': f'Error interno: {e}'}, status=500)
 
-#Fin modulo reportes
+    return JsonResponse({'error': 'Usa POST'}, status=405)
 
+
+
+# -------------------------------------------------------------------
+# LOGIN / REGISTRO
+# -------------------------------------------------------------------
+
+<<<<<<< HEAD
 
 #Inicio modulo configuracion
 # En autenticacion/views.py
@@ -115,18 +131,29 @@ def notificaciones_settings_view(request):
 # ----------------------------
 # LOGIN Y REGISTRO
 # ----------------------------
+=======
+>>>>>>> 368006431b845973f221dfdfc0fbf8c994d0067d
 def iniciar_sesion(request):
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
             usuario = form.get_user()
             login(request, usuario)
+
+            # Registrar actividad
+            RegistroActividad.objects.create(
+                usuario=usuario,
+                accion="Inicio de sesión",
+                descripcion=f"Inicio de sesión exitoso."
+            )
+
             return redirect('menu_principal')
         else:
-            messages.error(request, 'Usuario o contraseña incorrectos.')
+            messages.error(request, "Usuario o contraseña incorrectos")
     else:
         form = LoginForm()
-    return render(request, 'autenticacion/login.html', {'form': form})
+
+    return render(request, "autenticacion/login.html", {'form': form})
 
 
 def registro_view(request):
@@ -140,14 +167,15 @@ def registro_view(request):
                 grupo = Group.objects.get(name=grupo_seleccionado)
                 usuario.groups.add(grupo)
             except Group.DoesNotExist:
-                messages.warning(request, f"El grupo '{grupo_seleccionado}' no existe. El usuario fue creado sin grupo.")
+                messages.warning(request, f"El grupo '{grupo_seleccionado}' no existe.")
 
-            messages.success(request, '¡Registro exitoso! Ya puedes iniciar sesión.')
+            messages.success(request, "Registro exitoso.")
             return redirect('login')
+
     else:
         form = RegistroForm()
 
-    return render(request, 'autenticacion/registro.html', {'form': form})
+    return render(request, "autenticacion/registro.html", {'form': form})
 
 
 @login_required
@@ -163,14 +191,24 @@ def login_como_invitado(request):
             invitado.save()
 
         login(request, invitado)
+
+        RegistroActividad.objects.create(
+            usuario=invitado,
+            accion="Inicio de sesión",
+            descripcion="Inicio como invitado"
+        )
+
         return redirect('menu_principal')
-    else:
-        return redirect('login')
+
+    return redirect('login')
 
 
-# ----------------------------
-# MÓDULO DE INVENTARIO UNIFICADO
-# ----------------------------
+
+# -------------------------------------------------------------------
+# INVENTARIO (VERSIÓN UNIFICADA)
+# -------------------------------------------------------------------
+
+@login_required
 def inventario(request):
     productos = Producto.objects.all()
     return render(request, "autenticacion/inventario.html", {
@@ -179,20 +217,34 @@ def inventario(request):
     })
 
 
+@login_required
 def agregar_producto(request):
     if request.method == "POST":
         nombre = request.POST.get("nombre")
         descripcion = request.POST.get("descripcion")
         precio = request.POST.get("precio")
         cantidad = request.POST.get("cantidad")
-        Producto.objects.create(nombre=nombre, descripcion=descripcion, precio=precio, cantidad=cantidad)
+
+        Producto.objects.create(
+            nombre=nombre,
+            descripcion=descripcion,
+            precio=precio,
+            cantidad=cantidad
+        )
+
+        # Auditoría
+        RegistroActividad.objects.create(
+            usuario=request.user,
+            accion="Producto agregado",
+            descripcion=f"Agregó '{nombre}', cantidad={cantidad}, precio={precio}"
+        )
+
         return redirect("inventario")
 
-    return render(request, "autenticacion/inventario.html", {
-        "modo": "agregar"
-    })
+    return render(request, "autenticacion/inventario.html", { "modo": "agregar" })
 
 
+@login_required
 def editar_producto(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
 
@@ -202,6 +254,14 @@ def editar_producto(request, producto_id):
         producto.precio = request.POST.get("precio")
         producto.cantidad = request.POST.get("cantidad")
         producto.save()
+
+        # Auditoría
+        RegistroActividad.objects.create(
+            usuario=request.user,
+            accion="Producto editado",
+            descripcion=f"Editó producto {producto.nombre} (ID {producto.id})"
+        )
+
         return redirect("inventario")
 
     return render(request, "autenticacion/inventario.html", {
@@ -210,18 +270,34 @@ def editar_producto(request, producto_id):
     })
 
 
+@login_required
 def eliminar_producto(request, producto_id):
     producto = get_object_or_404(Producto, id=producto_id)
+    nombre = producto.nombre
+
     producto.delete()
+
+    RegistroActividad.objects.create(
+        usuario=request.user,
+        accion="Producto eliminado",
+        descripcion=f"Eliminó '{nombre}'"
+    )
+
     return redirect("inventario")
 
 
 
+# -------------------------------------------------------------------
+# VENTAS
+# -------------------------------------------------------------------
+
+@login_required
 def ventas(request):
     ventas = Venta.objects.all()
     return render(request, "autenticacion/ventas.html", {"ventas": ventas})
 
 
+@login_required
 def agregar_venta(request):
     productos = Producto.objects.all()
 
@@ -230,30 +306,43 @@ def agregar_venta(request):
         cantidad = int(request.POST.get("cantidad") or 0)
         producto = get_object_or_404(Producto, id=producto_id)
 
-        # Verificar que hay inventario suficiente
         if cantidad > producto.cantidad:
-            messages.error(request, "No hay inventario suficiente para realizar la venta.")
+            messages.error(request, "Inventario insuficiente.")
             return redirect("agregar_venta")
 
-        # Obtener precio unitario del producto (DecimalField)
         precio_unitario = producto.precio
-
-        # Calcular total (precio_unitario * cantidad)
         total = precio_unitario * cantidad
 
-        # Registrar venta incluyendo total
-        Venta.objects.create(
-            producto=producto,
-            cantidad=cantidad,
-            precio_unitario=precio_unitario,
-            total=total
+        with transaction.atomic():
+            Venta.objects.create(
+                producto=producto,
+                cantidad=cantidad,
+                precio_unitario=precio_unitario,
+                total=total
+            )
+
+            producto.cantidad -= cantidad
+            producto.save()
+
+        # Auditoría
+        RegistroActividad.objects.create(
+            usuario=request.user,
+            accion="Venta registrada",
+            descripcion=f"{cantidad}x {producto.nombre} — total {total}"
         )
 
-        # Restar inventario
-        producto.cantidad -= cantidad
-        producto.save()
-
-        messages.success(request, "Venta registrada exitosamente.")
+        messages.success(request, "Venta registrada correctamente.")
         return redirect("ventas")
 
     return render(request, "autenticacion/agregar_venta.html", {"productos": productos})
+
+
+
+# -------------------------------------------------------------------
+# SEGURIDAD: HISTORIAL DE ACTIVIDADES
+# -------------------------------------------------------------------
+
+@login_required
+def seguridad(request):
+    registros = RegistroActividad.objects.all().order_by('-fecha')
+    return render(request, 'autenticacion/seguridad.html', {"registros": registros})
