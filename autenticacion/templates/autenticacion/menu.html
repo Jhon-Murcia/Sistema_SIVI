@@ -4,128 +4,127 @@
 <head>
     <meta charset="UTF-8">
     <title>Menú Principal - SIVI</title>
+
+    <!-- TailwindCSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
     <style>
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            margin: 0;
-            padding: 0;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #74b9ff, #0984e3);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: white;
-        }
+    body {
+        font-family: 'Inter', sans-serif;
 
-        h1 {
-            font-size: 2.5em;
-            margin: 40px 0 20px 0;
-            text-shadow: 1px 1px 5px rgba(0,0,0,0.3);
-        }
+        /* FONDO CON IMAGEN */
+        background: url("https://www.revistalabarra.com/uploads/news-pictures/pphoto-9281.png") no-repeat center center fixed;
+        background-size: cover;
+    }
+</style>
 
-        .menu-grid {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 25px;
-            max-width: 1000px;
-            padding: 0 20px;
-            margin-bottom: 40px;
-        }
-
-        .menu-option {
-            background-color: white;
-            color: #007bff;
-            border-radius: 18px;
-            padding: 25px 35px;
-            min-width: 170px;
-            text-align: center;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1.1em;
-            transition: all 0.3s ease;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.15);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .menu-option span {
-            font-size: 2em;
-        }
-
-        .menu-option:hover {
-            transform: translateY(-7px);
-            background-color: #007bff;
-            color: white;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-        }
-
-        .menu-option.disabled {
-            background-color: #dfe6e9;
-            color: #636e72;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        .menu-option.logout {
-            background-color: #ff7675;
-            color: white;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-        }
-
-        .menu-option.logout:hover {
-            background-color: #d63031;
-            transform: translateY(-5px);
-        }
-
-        /* 💎 Botón especial para Inventario */
-        .menu-option.inventory {
-            background-color: #74b9ff;
-            color: white;
-        }
-
-        .menu-option.inventory:hover {
-            background-color: #0984e3;
-            transform: translateY(-5px);
-        }
-    </style>
 </head>
-<body>
-    <h1>Menú Principal</h1>
 
-    <div class="menu-grid">
-        <!-- Inventario -->
-        <a href="{% url 'inventario' %}" class="menu-option inventory">
-            <span>🛒</span> Inventario
+<body class="min-h-screen flex flex-col items-center py-12 px-4">
+
+    <!-- Título -->
+    <h1 class="text-4xl font-bold text-white drop-shadow mb-10 tracking-wide">
+        SIVI – Menú Principal
+    </h1>
+
+    <!-- Contenedor de opciones -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full max-w-5xl">
+
+        <!-- Opción: Inventario -->
+        <a href="{% url 'inventario' %}"
+           class="group bg-white/90 backdrop-blur-md rounded-2xl p-8 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition transform duration-300 border border-white/30">
+            <div class="flex flex-col items-center">
+                <!-- Ícono -->
+                <svg class="w-16 h-16 text-blue-600 group-hover:text-blue-700 transition" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M20.25 7.5l-8.954-4.477a1.125 1.125 0 00-1.042 0L2.25 7.5m18 0v9a2.25
+                          2.25 0 01-2.25 2.25h-3.75m6-11.25L12 12m0 0L3.75 7.5M12 12v9m0 0H8.25m3.75
+                          0h3.75"/>
+                </svg>
+                <p class="mt-4 text-xl font-semibold text-gray-800">Inventario</p>
+            </div>
         </a>
 
-        <!-- Ventas -->
-        <a href="{% url 'ventas' %}" class="menu-option">
-    <span>📦</span> Ventas
-</a>
-
-
-        <a href="{% url 'seguridad' %}" class="menu-option">
-    <span>🔒</span> Seguridad
-</a>
-        
-        <!-- Reportes -->
-        <a href="{% url 'report_interface' %}" class="menu-option">
-            <span>📊</span> Reportes
+        <!-- Opción: Ventas -->
+        <a href="{% url 'ventas' %}"
+           class="group bg-white/90 backdrop-blur-md rounded-2xl p-8 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition transform duration-300 border border-white/30">
+            <div class="flex flex-col items-center">
+                <svg class="w-16 h-16 text-green-600 group-hover:text-green-700 transition" xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M3 3h18M4 7h16M5 11h14M6 15h12M7 19h10"/>
+                </svg>
+                <p class="mt-4 text-xl font-semibold text-gray-800">Ventas</p>
+            </div>
         </a>
 
-        <!-- Configuración -->
-
-        <a href="{% url 'config_interface' %}" class="menu-option">
-            <span>⚙️</span> Configuración
+        <!-- Opción: Seguridad -->
+        <a href="{% url 'seguridad' %}"
+           class="group bg-white/90 backdrop-blur-md rounded-2xl p-8 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition transform duration-300 border border-white/30">
+            <div class="flex flex-col items-center">
+                <svg class="w-16 h-16 text-red-600 group-hover:text-red-700 transition" xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M12 11c1.657 0 3-1.567 3-3.5S13.657 4 12 4 9 5.567 9
+                          7.5s1.343 3.5 3 3.5zM12 11v8m0 0h-4m4 0h4"/>
+                </svg>
+                <p class="mt-4 text-xl font-semibold text-gray-800">Seguridad</p>
+            </div>
         </a>
 
-        <!-- Cerrar sesión -->
-        <a href="{% url 'logout' %}" class="menu-option logout">
-            <span>🚪</span> Cerrar sesión
+        <!-- Opción: Reportes -->
+        <a href="{% url 'report_interface' %}"
+           class="group bg-white/90 backdrop-blur-md rounded-2xl p-8 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition transform duration-300 border border-white/30">
+            <div class="flex flex-col items-center">
+                <svg class="w-16 h-16 text-purple-600 group-hover:text-purple-700 transition" xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M9 17v-6m4 6V7m4 10v-4M3 3v18h18"/>
+                </svg>
+                <p class="mt-4 text-xl font-semibold text-gray-800">Reportes</p>
+            </div>
         </a>
+
+        <!-- Opción: Configuración -->
+        <a href="{% url 'config_interface' %}"
+           class="group bg-white/90 backdrop-blur-md rounded-2xl p-8 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition transform duration-300 border border-white/30">
+            <div class="flex flex-col items-center">
+                <svg class="w-16 h-16 text-yellow-500 group-hover:text-yellow-600 transition" xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724
+                          0 002.573 1.066c1.543-.89 3.31.877 2.42 2.42a1.724 1.724
+                          0 001.065 2.572c1.756.427 1.756 2.924 0
+                          3.351a1.724 1.724 0 00-1.066 2.572c.89 1.543-.877
+                          3.31-2.42 2.42a1.724 1.724 0 00-2.572 1.066c-.427
+                          1.756-2.924 1.756-3.351 0A1.724 1.724 0 008.01
+                          19.72c-1.543.89-3.31-.877-2.42-2.42a1.724 1.724
+                          0 00-1.066-2.572c-1.756-.427-1.756-2.924
+                          0-3.351A1.724 1.724 0 005.59 7.803c-.89-1.543.877-3.31
+                          2.42-2.42a1.724 1.724 0 002.315-1.066z"/>
+                </svg>
+                <p class="mt-4 text-xl font-semibold text-gray-800">Configuración</p>
+            </div>
+        </a>
+
+        <!-- Opción: Cerrar sesión -->
+        <a href="{% url 'logout' %}"
+           class="group bg-red-600 hover:bg-red-700 text-white rounded-2xl p-8 shadow-xl hover:shadow-2xl hover:-translate-y-1 transition transform duration-300 border border-red-800/20">
+            <div class="flex flex-col items-center">
+                <svg class="w-16 h-16 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                     viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                          d="M15.75 9V5.25A2.25 2.25 0 0013.5
+                          3h-6A2.25 2.25 0 005.25 5.25v13.5A2.25 2.25 0
+                          007.5 21h6a2.25 2.25 0 002.25-2.25V15M12
+                          9l3 3m0 0l-3 3m3-3H3"/>
+                </svg>
+                <p class="mt-4 text-xl font-semibold">Cerrar sesión</p>
+            </div>
+        </a>
+
     </div>
+
 </body>
 </html>

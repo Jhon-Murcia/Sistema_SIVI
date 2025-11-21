@@ -2,144 +2,190 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Inventario - SIVI</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #74b9ff, #0984e3);
-      color: white;
-      min-height: 100vh;
-      padding: 20px;
-    }
+    <meta charset="UTF-8">
+    <title>Inventario - SIVI</title>
 
-    .container {
-      background-color: white;
-      color: #2d3436;
-      border-radius: 18px;
-      padding: 30px;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.2);
-    }
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-    h2 {
-      color: #0984e3;
-    }
+    <style>
+        body {
+  font-family: 'Segoe UI', sans-serif;
 
-    .btn-volver {
-      background-color: #d63031;
-      color: white;
-      border-radius: 10px;
-      padding: 8px 16px;
-      text-decoration: none;
-    }
+  /* FONDO CON IMAGEN */
+  background: url("https://www.casadecomidas-restaurante.com/wp-content/uploads/sites/14/2024/07/NH_Collection_Eurobuilding_Restaurant_Casa_De_Comidas_home-main.jpg") no-repeat center center fixed;
+  background-size: cover;
 
-    .btn-volver:hover {
-      background-color: #ff7675;
-    }
+  color: white;
+  min-height: 100vh;
+  padding: 20px;
+}
 
-    .btn-success {
-      background-color: #0984e3;
-      border: none;
-    }
-
-    .btn-success:hover {
-      background-color: #74b9ff;
-    }
-  </style>
+    </style>
 </head>
-<body>
-  <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h2>
-        {% if modo == "agregar" %}Agregar Producto{% elif modo == "editar" %}Editar Producto{% else %}Inventario de Productos{% endif %}
-      </h2>
-      <a href="{% url 'menu_principal' %}" class="btn-volver">⬅ Volver al menú</a>
+
+<body class="p-6">
+
+    <div class="max-w-6xl mx-auto bg-white shadow-lg rounded-2xl p-8">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-3xl font-bold text-gray-800 flex items-center gap-2">
+
+                {% if modo == "agregar" %}
+                    Agregar Producto
+                {% elif modo == "editar" %}
+                    Editar Producto
+                {% else %}
+                    Inventario de Productos
+                {% endif %}
+            </h2>
+
+            <a href="{% url 'menu_principal' %}"
+               class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition shadow">
+                ⬅ Volver al menú
+            </a>
+        </div>
+
+        <!-- ===================== LISTA DE PRODUCTOS ===================== -->
+        {% if modo == "lista" %}
+
+            <div class="flex justify-end mb-4">
+                <a href="{% url 'agregar_producto' %}"
+                   class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition shadow flex items-center gap-2">
+                    Agregar producto
+                </a>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white rounded-lg shadow">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Descripción</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Precio</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Cantidad</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody class="divide-y divide-gray-200">
+                        {% for producto in productos %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 text-gray-800">{{ producto.id }}</td>
+                            <td class="px-6 py-4 font-semibold text-gray-900">{{ producto.nombre }}</td>
+                            <td class="px-6 py-4 text-gray-600">{{ producto.descripcion }}</td>
+                            <td class="px-6 py-4 text-gray-900 font-medium">${{ producto.precio }}</td>
+                            <td class="px-6 py-4 text-gray-800">{{ producto.cantidad }}</td>
+
+                            <td class="px-6 py-4 text-center flex justify-center gap-2">
+                                <a href="{% url 'editar_producto' producto.id %}"
+                                   class="bg-yellow-400 px-3 py-1 rounded-lg text-sm hover:bg-yellow-500 transition shadow">
+                                    Editar
+                                </a>
+                                <a href="{% url 'eliminar_producto' producto.id %}"
+                                   onclick="return confirm('¿Seguro que deseas eliminar este producto?');"
+                                   class="bg-red-500 px-3 py-1 rounded-lg text-sm text-white hover:bg-red-600 transition shadow">
+                                    🗑 Eliminar
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-gray-500">
+                                No hay productos registrados.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+        <!-- ===================== FORMULARIO AGREGAR ===================== -->
+        {% elif modo == "agregar" %}
+
+            <form method="POST" class="space-y-5">
+                {% csrf_token %}
+
+                <div>
+                    <label class="block mb-1 text-sm font-medium text-gray-700">Nombre</label>
+                    <input type="text" name="nombre" required
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition">
+                </div>
+
+                <div>
+                    <label class="block mb-1 text-sm font-medium text-gray-700">Descripción</label>
+                    <textarea name="descripcion"
+                              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition"></textarea>
+                </div>
+
+                <div>
+                    <label class="block mb-1 text-sm font-medium text-gray-700">Precio</label>
+                    <input type="number" step="0.01" name="precio" required
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition">
+                </div>
+
+                <div>
+                    <label class="block mb-1 text-sm font-medium text-gray-700">Cantidad</label>
+                    <input type="number" name="cantidad" required
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition">
+                </div>
+
+                <button class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition shadow">
+                    Guardar
+                </button>
+
+                <a href="{% url 'inventario' %}"
+                   class="w-full block text-center bg-gray-300 py-3 rounded-lg font-semibold text-gray-900 hover:bg-gray-400 transition shadow">
+                    Cancelar
+                </a>
+            </form>
+
+        <!-- ===================== FORMULARIO EDITAR ===================== -->
+        {% elif modo == "editar" %}
+
+            <form method="POST" class="space-y-5">
+                {% csrf_token %}
+
+                <div>
+                    <label class="block mb-1 text-sm font-medium text-gray-700">Nombre</label>
+                    <input type="text" name="nombre" value="{{ producto.nombre }}" required
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition">
+                </div>
+
+                <div>
+                    <label class="block mb-1 text-sm font-medium text-gray-700">Descripción</label>
+                    <textarea name="descripcion"
+                              class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition">{{ producto.descripcion }}</textarea>
+                </div>
+
+                <div>
+                    <label class="block mb-1 text-sm font-medium text-gray-700">Precio</label>
+                    <input type="number" step="0.01" name="precio" value="{{ producto.precio }}" required
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition">
+                </div>
+
+                <div>
+                    <label class="block mb-1 text-sm font-medium text-gray-700">Cantidad</label>
+                    <input type="number" name="cantidad" value="{{ producto.cantidad }}" required
+                           class="w-full p-3 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition">
+                </div>
+
+                <button class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition shadow">
+                    Guardar cambios
+                </button>
+
+                <a href="{% url 'inventario' %}"
+                   class="w-full block text-center bg-gray-300 py-3 rounded-lg font-semibold text-gray-900 hover:bg-gray-400 transition shadow">
+                    Cancelar
+                </a>
+            </form>
+
+        {% endif %}
+
     </div>
 
-    {% if modo == "lista" %}
-      <div class="text-end mb-3">
-        <a href="{% url 'agregar_producto' %}" class="btn btn-success">➕ Agregar producto</a>
-      </div>
-
-      <table class="table table-striped table-bordered">
-        <thead class="table-dark">
-          <tr>
-            <th>ID</th>
-            <th>Nombre</th>
-            <th>Descripción</th>
-            <th>Precio</th>
-            <th>Cantidad</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for producto in productos %}
-          <tr>
-            <td>{{ producto.id }}</td>
-            <td>{{ producto.nombre }}</td>
-            <td>{{ producto.descripcion }}</td>
-            <td>${{ producto.precio }}</td>
-            <td>{{ producto.cantidad }}</td>
-            <td>
-              <a href="{% url 'editar_producto' producto.id %}" class="btn btn-warning btn-sm">✏️ Editar</a>
-              <a href="{% url 'eliminar_producto' producto.id %}" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que deseas eliminar este producto?');">🗑 Eliminar</a>
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="6" class="text-center text-muted">No hay productos registrados.</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-
-    {% elif modo == "agregar" %}
-      <form method="POST">
-        {% csrf_token %}
-        <div class="mb-3">
-          <label class="form-label">Nombre</label>
-          <input type="text" class="form-control" name="nombre" required>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Descripción</label>
-          <textarea class="form-control" name="descripcion"></textarea>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Precio</label>
-          <input type="number" class="form-control" name="precio" step="0.01" required>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Cantidad</label>
-          <input type="number" class="form-control" name="cantidad" required>
-        </div>
-        <button type="submit" class="btn btn-success">Guardar</button>
-        <a href="{% url 'inventario' %}" class="btn btn-secondary">Cancelar</a>
-      </form>
-
-    {% elif modo == "editar" %}
-      <form method="POST">
-        {% csrf_token %}
-        <div class="mb-3">
-          <label class="form-label">Nombre</label>
-          <input type="text" class="form-control" name="nombre" value="{{ producto.nombre }}" required>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Descripción</label>
-          <textarea class="form-control" name="descripcion">{{ producto.descripcion }}</textarea>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Precio</label>
-          <input type="number" class="form-control" name="precio" step="0.01" value="{{ producto.precio }}" required>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Cantidad</label>
-          <input type="number" class="form-control" name="cantidad" value="{{ producto.cantidad }}" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Guardar cambios</button>
-        <a href="{% url 'inventario' %}" class="btn btn-secondary">Cancelar</a>
-      </form>
-    {% endif %}
-  </div>
 </body>
 </html>

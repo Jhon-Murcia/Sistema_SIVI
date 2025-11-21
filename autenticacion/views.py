@@ -11,6 +11,7 @@ from django.utils import timezone
 from django.http import JsonResponse
 import json
 from django.contrib.auth import logout
+from django.shortcuts import redirect
 
 # --------------------------
 # MÓDULOS EXTERNOS
@@ -60,6 +61,9 @@ def generate_report_api_view(request):
 
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
+def logout_view(request):
+    logout(request)
+    return redirect('login')
 
 # ==========================
 # ⚙️ MÓDULO CONFIGURACIÓN
