@@ -11,6 +11,7 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     path('invitado/', views.login_como_invitado, name='invitado'),
+    path('logout/', views.cerrar_sesion, name='logout'),
 
     # menú principal
     path('menu/', menu.menu_principal, name='menu_principal'),
@@ -37,4 +38,7 @@ urlpatterns = [
     path('configuracion/compras/', views.mis_compras_view, name='mis_compras'),
     path('configuracion/privacidad/', views.privacidad_settings_view, name='privacidad_settings'),
     path('configuracion/notificaciones/', views.notificaciones_settings_view, name='notificaciones_settings'),
+
+    path('seguridad/', views.seguridad, name='seguridad'),
+
 ]
