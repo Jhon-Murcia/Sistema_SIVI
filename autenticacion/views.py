@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from .forms import RegistroForm, LoginForm
 from django.contrib.auth.models import User, Group
@@ -8,7 +9,62 @@ from .models import Producto, Venta
 from django.db.models import F
 from .models import Venta, Producto
 from django.utils import timezone
+from django.urls import path
+from . import views # Importa el archivo views.py de la carpeta actual
+#Modulo reporte
+# -------------------------------------------------------------------------
+# IMPORTACIÓN CLAVE: Asumiendo que report_service.py está al mismo nivel que autenticacion/
+# Si Django no encuentra 'report_service', podrías necesitar una importación relativa:
+# from ..report_service import generate_report_data
+# Usaré la importación que asume que es accesible desde el entorno global de Django
+import report_service as report_service 
+# -------------------------------------------------------------------------
 
+# Vista 1: Renderiza la interfaz HTML (asume que reportes_interfaz.html está en 'templates/autenticacion')
+# Protegemos esta vista para que solo usuarios logueados accedan al módulo de reportes.
+@login_required 
+def report_interface_view(request):
+    """Renderiza la página que contiene la lógica de reportes."""
+    # Asegúrate de que tu archivo HTML se llame 'reportes_interfaz.html' 
+    # y esté en la carpeta 'templates/autenticacion' (o donde lo sirvas).
+    return render(request, 'autenticacion/reportes_interfaz.html',{})
+
+
+# Vista 2: El ENDPOINT de la API que el JavaScript llamará
+@csrf_exempt # **IMPORTANTE:** En entornos de producción, configura el token CSRF en el JS.
+             # Para pruebas, lo dejamos aquí para evitar el error 403.
+@login_required 
+def generate_report_api_view(request):
+    """
+    Recibe los filtros del frontend por POST y llama a la lógica de reportes.
+    Ruta: /reportes/api/generar/
+    """
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body.decode('utf-8'))
+            
+            filters = {
+                'reportType': data.get('reportType'),
+                'startDate': data.get('startDate'),
+                'endDate': data.get('endDate'),
+                'userId': data.get('userId', ''),
+                'category': data.get('category', ''),
+            }
+            
+            report_data = report_service.generate_report_data(filters)
+            
+            return JsonResponse(report_data)
+        
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON format'}, status=400)
+        except Exception as e:
+    
+            print(f"ERROR al generar reporte en Django: {e}")
+            return JsonResponse({'error': f'Error interno del servidor: {str(e)}'}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido. Use POST.'}, status=405)
+
+#Fin modulo reportes
 
 # ----------------------------
 # LOGIN Y REGISTRO
