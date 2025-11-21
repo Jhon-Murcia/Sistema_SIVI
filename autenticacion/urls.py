@@ -29,6 +29,12 @@ urlpatterns = [
     path('reportes/', views.report_interface_view, name='report_interface'),
     # 2. Ruta API para que el JavaScript llame al generar el reporte (ENDPOINT)
     path('reportes/api/generar/', views.generate_report_api_view, name='generate_report_api'),
-    
-
+    # 3.Ruta configuracion
+    path('configuracion/', views.config_interface_view, name='config_interface'),
+    # RUTAS HIJAS DEL MENÚ DE CONFIGURACIÓN:
+    path('configuracion/perfil/', views.perfil_detail_view, name='perfil_detail'),
+    path('configuracion/seguridad/', views.seguridad_settings_view, name='seguridad_settings'),
+    path('configuracion/compras/', views.mis_compras_view, name='mis_compras'),
+    path('configuracion/privacidad/', views.privacidad_settings_view, name='privacidad_settings'),
+    path('configuracion/notificaciones/', views.notificaciones_settings_view, name='notificaciones_settings'),
 ]

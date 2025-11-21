@@ -7,18 +7,16 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
 from .models import Producto, Venta
 from django.db.models import F
-from .models import Venta, Producto
 from django.utils import timezone
-from django.urls import path
-from . import views # Importa el archivo views.py de la carpeta actual
-#Modulo reporte
+# from django.urls import path
+# from . import views # Importa el archivo views.py de la carpeta actual#Modulo reporte
 # -------------------------------------------------------------------------
 # IMPORTACIÓN CLAVE: Asumiendo que report_service.py está al mismo nivel que autenticacion/
 # Si Django no encuentra 'report_service', podrías necesitar una importación relativa:
 # from ..report_service import generate_report_data
 # Usaré la importación que asume que es accesible desde el entorno global de Django
 import report_service as report_service 
-# -------------------------------------------------------------------------
+import config_logic as config_logic
 
 # Vista 1: Renderiza la interfaz HTML (asume que reportes_interfaz.html está en 'templates/autenticacion')
 # Protegemos esta vista para que solo usuarios logueados accedan al módulo de reportes.
@@ -65,6 +63,54 @@ def generate_report_api_view(request):
     return JsonResponse({'error': 'Método no permitido. Use POST.'}, status=405)
 
 #Fin modulo reportes
+
+
+#Inicio modulo configuracion
+# En autenticacion/views.py
+
+from django.shortcuts import render
+# ... otras importaciones ...
+
+def config_interface_view(request):
+    """
+    Vista principal que renderiza el menú de configuración.
+    """
+    # En un proyecto real, pasarías el user_id o el objeto de usuario aquí
+    context = {}
+    return render(request, 'autenticacion/config_interface.html', context)
+
+# En autenticacion/views.py
+
+# Asegúrate de importar tu lógica de configuración
+import config_logic
+
+def perfil_detail_view(request):
+    """Vista para ver y editar los datos personales del usuario."""
+    # Aquí puedes llamar a config_logic.obtener_datos_perfil(request.user.id)
+    return render(request, 'autenticacion/perfil_detail.html', {})
+
+def seguridad_settings_view(request):
+    """Vista para cambiar la contraseña y otros ajustes de seguridad."""
+    return render(request, 'autenticacion/seguridad_settings.html', {})
+
+def mis_compras_view(request):
+    """Vista para mostrar el historial de compras del usuario."""
+    # Si este módulo está en otra app (ej. 'ventas'), debes enlazarlo allí.
+    # Por ahora, lo dejamos aquí para que compile.
+    return render(request, 'autenticacion/mis_compras.html', {})
+
+def privacidad_settings_view(request):
+    """Vista para configurar las opciones de privacidad."""
+    return render(request, 'autenticacion/privacidad_settings.html', {})
+
+def notificaciones_settings_view(request):
+    """Vista para configurar las opciones de notificaciones."""
+    return render(request, 'autenticacion/notificaciones_settings.html', {})
+
+
+#Fin modulo configuracion
+
+
 
 # ----------------------------
 # LOGIN Y REGISTRO
