@@ -24,7 +24,11 @@ urlpatterns = [
     path('ventas/', views.ventas, name='ventas'),
     path('ventas/', views.ventas, name='ventas'),
     path('ventas/agregar/', views.agregar_venta, name='agregar_venta'),
-
+    
+    # 1. Ruta para cargar la interfaz HTML (si está en la carpeta 'templates')
+    path('reportes/', views.report_interface_view, name='report_interface'),
+    # 2. Ruta API para que el JavaScript llame al generar el reporte (ENDPOINT)
+    path('reportes/api/generar/', views.generate_report_api_view, name='generate_report_api'),
     
 
 ]
