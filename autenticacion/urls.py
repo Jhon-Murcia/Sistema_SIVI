@@ -31,4 +31,6 @@ urlpatterns = [
     path('reportes/api/generar/', views.generate_report_api_view, name='generate_report_api'),
     
 
+    path('seguridad/', views.seguridad, name='seguridad'),
+
 ]
