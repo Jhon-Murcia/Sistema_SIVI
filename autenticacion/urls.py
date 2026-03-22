@@ -11,6 +11,7 @@ urlpatterns = [
     path('dashboard/', views.dashboard, name='dashboard'),
     path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
     path('invitado/', views.login_como_invitado, name='invitado'),
+    path('seguridad/', views.seguridad, name='seguridad'),
 
     # menú principal
     path('menu/', menu.menu_principal, name='menu_principal'),

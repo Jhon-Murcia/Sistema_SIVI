@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.decorators import login_required
-<<<<<<< HEAD
+
 from .models import Producto, Venta
 from django.db.models import F
 from django.utils import timezone
@@ -18,12 +18,10 @@ from django.utils import timezone
 # Usaré la importación que asume que es accesible desde el entorno global de Django
 import report_service as report_service 
 import config_logic as config_logic
-=======
 from django.http import JsonResponse
 
 from django.db import transaction
 from django.utils import timezone
->>>>>>> 368006431b845973f221dfdfc0fbf8c994d0067d
 
 # Modelos
 from .models import Producto, Venta, RegistroActividad
@@ -79,7 +77,7 @@ def generate_report_api_view(request):
 # LOGIN / REGISTRO
 # -------------------------------------------------------------------
 
-<<<<<<< HEAD
+
 
 #Inicio modulo configuracion
 # En autenticacion/views.py
@@ -131,8 +129,6 @@ def notificaciones_settings_view(request):
 # ----------------------------
 # LOGIN Y REGISTRO
 # ----------------------------
-=======
->>>>>>> 368006431b845973f221dfdfc0fbf8c994d0067d
 def iniciar_sesion(request):
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
